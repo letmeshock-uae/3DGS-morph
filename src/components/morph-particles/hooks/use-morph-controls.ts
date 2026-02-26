@@ -217,9 +217,9 @@ export function useMorphControls(
     }),
     [meshesOptions, meshes, uniforms],
   ) as unknown as [
-    MorphControlsValues,
-    (values: Partial<MorphControlsValues>) => void,
-  ];
+      MorphControlsValues,
+      (values: Partial<MorphControlsValues>) => void,
+    ];
 
   useEffect(() => {
     const s = particleStyles[controls.particleStyle];
@@ -238,30 +238,53 @@ export function useMorphControls(
   }, [controls.particleStyle, set, uniforms]);
 
   /*
-   * Logic to trigger the morphing animation
+   * Logic to trigger the morphing animation automatically every 4 seconds
    */
   const durationRef = useRef(config.animationDuration);
-  const targetRef = useRef(config.animationProgress > 0.5 ? 1 : 0);
-  const trigger = useCallback(() => {
-    const nextTarget = targetRef.current === 0 ? 1 : 0;
-    targetRef.current = nextTarget;
+  const currentIndexRef = useRef(0);
 
-    const currentProgress = uniforms.animationProgress.value;
-    const distance = Math.abs(nextTarget - currentProgress);
-    const time = durationRef.current * distance;
+  useEffect(() => {
+    if (meshes.length === 0) return;
 
-    gsap.killTweensOf(uniforms.animationProgress);
-    isAnimating.current = true;
+    // Set initial configuration
+    if (uniforms.animationProgress.value === 0 && meshes.length > 1) {
+      uniforms.meshAIndex.value = meshes[0].id;
+      uniforms.mapA.value = meshes[0].texture;
+      uniforms.meshBIndex.value = meshes[1].id;
+      uniforms.mapB.value = meshes[1].texture;
+    }
 
-    gsap.to(uniforms.animationProgress, {
-      value: nextTarget,
-      duration: time,
-      ease: "none",
-      onComplete: () => {
-        isAnimating.current = false;
-      },
-    });
-  }, [uniforms]);
+    const interval = setInterval(() => {
+      if (meshes.length < 2) return;
+
+      const currentIdx = currentIndexRef.current;
+      const nextIdx = (currentIdx + 1) % meshes.length;
+
+      uniforms.meshAIndex.value = meshes[currentIdx].id;
+      uniforms.mapA.value = meshes[currentIdx].texture;
+      uniforms.meshBIndex.value = meshes[nextIdx].id;
+      uniforms.mapB.value = meshes[nextIdx].texture;
+      uniforms.animationProgress.value = 0;
+
+      gsap.killTweensOf(uniforms.animationProgress);
+      isAnimating.current = true;
+
+      gsap.to(uniforms.animationProgress, {
+        value: 1,
+        duration: durationRef.current,
+        ease: "none",
+        onComplete: () => {
+          isAnimating.current = false;
+        },
+      });
+
+      currentIndexRef.current = nextIdx;
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [meshes, uniforms]);
+
+  const trigger = useCallback(() => { }, []);
 
   /*
    * Track the active mesh ID based on animation progress

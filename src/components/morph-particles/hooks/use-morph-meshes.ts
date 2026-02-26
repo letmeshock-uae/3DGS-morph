@@ -8,7 +8,6 @@ import {
   Texture,
   UnsignedByteType,
 } from "three";
-import type { ModelsGLB } from "../config";
 
 /* Fallback Texture */
 const white = new Uint8Array([255, 255, 255, 255]);
@@ -28,24 +27,39 @@ export type MeshAsset = {
   texture: Texture;
 };
 
+// Dynamically gather all .glb files from public/models using Vite glob
+const glbPaths = Object.keys(import.meta.glob("/public/models/*.glb"))
+  .map(path => path.replace("/public", ""))
+  .filter(path => !path.includes("button.glb"));
+
 export function useMorphMeshes() {
-  const glb = useGLTF("/models/models.glb", "/draco/") as unknown as ModelsGLB;
+  const results = useGLTF(glbPaths, "/draco/");
+  const gltfArray = Array.isArray(results) ? results : [results];
 
   const meshes = useMemo<MeshAsset[]>(() => {
-    return Object.entries(glb.nodes)
-      .filter(([, obj]) => obj instanceof Mesh)
-      .map(([name, mesh], index) => {
-        const mat = mesh.material as TexturedMaterial;
-        const texture = mat.map || defaultTex;
-
-        return {
-          name,
-          mesh: mesh as Mesh,
-          id: index,
-          texture,
-        };
+    let index = 0;
+    const assets: MeshAsset[] = [];
+    
+    gltfArray.forEach((gltf, i) => {
+      if (!gltf || !gltf.nodes) return;
+      const fileName = glbPaths[i].split('/').pop()?.replace('.glb', '') || `model_${i}`;
+      
+      Object.entries(gltf.nodes).forEach(([nodeName, obj]) => {
+        if (obj instanceof Mesh) {
+          const mat = obj.material as TexturedMaterial;
+          const texture = mat?.map || defaultTex;
+          assets.push({
+            name: `${fileName}_${nodeName}`,
+            mesh: obj as Mesh,
+            id: index++,
+            texture,
+          });
+        }
       });
-  }, [glb]);
+    });
+    
+    return assets;
+  }, [gltfArray]);
 
   return meshes;
 }

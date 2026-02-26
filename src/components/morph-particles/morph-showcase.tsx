@@ -1,7 +1,6 @@
 import type { ThreeElements } from "@react-three/fiber";
 import { useMorphControls } from "./hooks/use-morph-controls";
 import { useMorphMaterial } from "./hooks/use-morph-material";
-import Button3D from "@/components/button-3d/button-3d";
 import MorphAssetsCredits from "./morph-assets-credits";
 import { useMorphMeshes } from "./hooks/use-morph-meshes";
 import { MorphTexturesDebug } from "./morph-textures-debug";
@@ -50,7 +49,6 @@ export default function MorphShowcase(props: ThreeElements["group"]) {
       )}
 
       {/* Scene Extras */}
-      <Button3D onClick={trigger} scale={0.4} position={[0, 0, 4]} />
       <MorphAssetsCredits activeMesh={activeMesh} />
     </group>
   );
