@@ -1,4 +1,4 @@
-import { useControls } from "leva";
+import { useControls, folder } from "leva";
 import {
   particlesMorphingConfig as config,
   morphingDebugFolderName,
@@ -10,13 +10,22 @@ import {
  */
 export function useMorphSystemSettings() {
   const { resolution, debug } = useControls(morphingDebugFolderName, {
-    resolution: {
-      label: "Resolution",
-      value: config.resolution,
-      options: [32, 64, 128, 256, 512],
-    },
+    Appearance: folder({
+      resolution: {
+        label: "Particle Count",
+        value: config.resolution,
+        options: {
+          "1K (Low)": 32,
+          "4K (Medium)": 64,
+          "16K (High)": 128,
+          "65K (Ultra)": 256,
+          "262K (Extreme)": 512,
+          "1M (Insane)": 1024,
+        },
+      },
+    }),
     debug: {
-      label: "Debug",
+      label: "Debug Mode",
       value: false,
     },
   });
