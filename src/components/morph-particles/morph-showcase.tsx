@@ -10,7 +10,7 @@ export default function MorphShowcase(props: ThreeElements["group"]) {
   const meshes = useMorphMeshes();
   const { resolution, debug } = useMorphSystemSettings();
   const { material, dataTextures } = useMorphMaterial(resolution, meshes);
-  const { trigger, controls, activeMesh } = useMorphControls(
+  const { controls, activeMesh } = useMorphControls(
     material.uniforms,
     meshes,
   );
