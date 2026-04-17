@@ -24,7 +24,7 @@ export default function App() {
 }
 
 function DemoApp() {
-  const { autoRotate, rotationTime } = useControls({
+  const { autoRotate, rotationTime, bgColor } = useControls({
     "🎥 Camera": folder({
       autoRotate: {
         label: "Auto Rotate",
@@ -39,6 +39,12 @@ function DemoApp() {
         render: (get) => get("🎥 Camera.autoRotate"),
       },
     }),
+    "🎨 Scene": folder({
+      bgColor: {
+        label: "Background",
+        value: "#242424",
+      },
+    }),
   });
 
   return (
@@ -48,6 +54,10 @@ function DemoApp() {
       <ui.Out />
 
       <Leva theme={customTheme} hideCopyButton flat />
+      <div
+        className="fixed inset-0"
+        style={{ backgroundColor: bgColor, zIndex: -1 }}
+      />
       <Canvas camera={{ position: [-2.73, 1.28, 4.62] }}>
         <OrbitControls
           makeDefault

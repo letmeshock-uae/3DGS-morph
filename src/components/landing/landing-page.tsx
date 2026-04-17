@@ -6,34 +6,6 @@ import Loader from "../loader";
 import MorphShowcase from "../morph-particles/morph-showcase";
 import type { ScrollMorphResult } from "../morph-particles/morph-showcase";
 import LandingSections from "./landing-sections";
-import { capitalize } from "@/utils/capitalize";
-
-function ScrollHUD({ state }: { state: ScrollMorphResult | null }) {
-  if (!state) return null;
-
-  const parts = state.currentShapeName.split("_");
-  const rawName = parts.length > 1 ? parts[parts.length - 1] : parts[0];
-  const displayName = capitalize(rawName);
-
-  return (
-    <div
-      className="fixed right-6 bottom-6 z-20 rounded-xl border border-white/10 bg-black/40 px-4 py-3 font-mono text-xs text-white/70 backdrop-blur-md transition-opacity duration-500"
-      style={{ opacity: state.globalProgress > 0.01 ? 1 : 0 }}
-    >
-      <div className="flex items-center gap-3">
-        <span className="text-white/90">{displayName}</span>
-        <span className="text-white/30">|</span>
-        <span>{(state.globalProgress * 100).toFixed(0)}%</span>
-      </div>
-      <div className="mt-2 h-px w-full overflow-hidden rounded-full bg-white/10">
-        <div
-          className="h-full bg-gradient-to-r from-purple-400 to-pink-400 transition-all duration-150"
-          style={{ width: `${state.globalProgress * 100}%` }}
-        />
-      </div>
-    </div>
-  );
-}
 
 export default function LandingPage() {
   const [scrollMorphState, setScrollMorphState] =
@@ -43,7 +15,7 @@ export default function LandingPage() {
     setScrollMorphState(state);
   }, []);
 
-  const meshNames = scrollMorphState?.meshNames ?? [];
+  const meshCount = scrollMorphState?.meshNames.length ?? 0;
 
   return (
     <div className="relative">
@@ -69,12 +41,7 @@ export default function LandingPage() {
         </Suspense>
       </Canvas>
 
-      <LandingSections
-        meshNames={meshNames}
-        scrollMorphState={scrollMorphState}
-      />
-
-      <ScrollHUD state={scrollMorphState} />
+      <LandingSections meshCount={meshCount} />
     </div>
   );
 }
