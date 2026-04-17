@@ -18,6 +18,8 @@ import { capitalize } from "@/utils/capitalize";
 import { AdditiveBlending, NormalBlending } from "three";
 import { useFrame } from "@react-three/fiber";
 
+export type MorphMode = "auto" | "scroll";
+
 type MorphControlsValues = Omit<ParticlesMorphParams, "resolution"> & {
   particleStyle: ParticleStyleName;
 };
@@ -25,6 +27,7 @@ type MorphControlsValues = Omit<ParticlesMorphParams, "resolution"> & {
 export function useMorphControls(
   uniforms: ParticlesMorphUniforms,
   meshes: MeshAsset[],
+  mode: MorphMode = "auto",
 ) {
   const isAnimating = useRef(false); // To prevent Leva updates fighting GSAP
 
@@ -239,14 +242,15 @@ export function useMorphControls(
 
   /*
    * Logic to trigger the morphing animation automatically every 4 seconds
+   * Only active in 'auto' mode
    */
   const durationRef = useRef(config.animationDuration);
   const currentIndexRef = useRef(0);
 
   useEffect(() => {
+    if (mode !== "auto") return;
     if (meshes.length === 0) return;
 
-    // Set initial configuration
     if (uniforms.animationProgress.value === 0 && meshes.length > 1) {
       uniforms.meshAIndex.value = meshes[0].id;
       uniforms.mapA.value = meshes[0].texture;
@@ -282,7 +286,7 @@ export function useMorphControls(
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [meshes, uniforms]);
+  }, [meshes, uniforms, mode]);
 
   const trigger = useCallback(() => { }, []);
 
@@ -292,6 +296,7 @@ export function useMorphControls(
    */
   const [activeId, setActiveId] = useState(config.meshAIndex);
   useFrame(() => {
+    if (mode !== "auto") return;
     const progress = uniforms.animationProgress.value;
     const meshA = uniforms.meshAIndex.value;
     const meshB = uniforms.meshBIndex.value;
@@ -304,5 +309,5 @@ export function useMorphControls(
     [meshes, activeId],
   );
 
-  return { trigger, controls, activeMesh };
+  return { trigger, controls, activeMesh, activeMode: mode };
 }

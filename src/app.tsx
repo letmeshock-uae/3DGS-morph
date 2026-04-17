@@ -9,8 +9,21 @@ import { customTheme } from "./utils/leva";
 import { Suspense } from "react";
 import Loader from "./components/loader";
 import StatsMonitor from "./components/stats-monitor";
+import LandingPage from "./components/landing/landing-page";
+
+const isLanding =
+  window.location.pathname === "/landing" ||
+  new URLSearchParams(window.location.search).has("landing");
 
 export default function App() {
+  if (isLanding) {
+    return <LandingPage />;
+  }
+
+  return <DemoApp />;
+}
+
+function DemoApp() {
   const { autoRotate, rotationTime } = useControls({
     "🎥 Camera": folder({
       autoRotate: {
@@ -34,16 +47,12 @@ export default function App() {
 
       <ui.Out />
 
-
-
       <Leva theme={customTheme} hideCopyButton flat />
       <Canvas camera={{ position: [-2.73, 1.28, 4.62] }}>
         <OrbitControls
           makeDefault
           target={[0.48, -0.05, 0.17]}
           autoRotate={autoRotate}
-          // OrbitControls autoRotateSpeed 2.0 = 30 seconds per orbit.
-          // Formula: speed = 60 / seconds
           autoRotateSpeed={60 / rotationTime}
         />
         <StatsMonitor />

@@ -16,7 +16,11 @@ extend({
   MeshStandardNodeMaterial: MeshStandardNodeMaterial,
 });
 
-export default function Canvas(props: CanvasProps) {
+type AppCanvasProps = CanvasProps & {
+  fixed?: boolean;
+};
+
+export default function Canvas({ fixed = false, style, ...props }: AppCanvasProps) {
   return (
     <FiberCanvas
       style={{
@@ -26,6 +30,8 @@ export default function Canvas(props: CanvasProps) {
         width: "100vw",
         height: "100dvh",
         touchAction: "none",
+        ...(fixed ? { zIndex: 0, pointerEvents: "none" } : {}),
+        ...style,
       }}
       dpr={[1, 1.5]}
       gl={async (props) => {

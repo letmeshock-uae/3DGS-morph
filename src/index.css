@@ -6,6 +6,7 @@
 
 body {
   background: #242424;
+  overflow-x: hidden;
 }
 
 div[class*="leva"] select {
